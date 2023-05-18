@@ -50,18 +50,20 @@ public class Elevator : MonoBehaviour, IInteractable
     }
 
     public void Interact(PlayerController player) {
-        if (_storedCount < _storageLimit) {
-            switch (player.CurrentItem) { 
-                case Item.Bullet:
+        switch (player.CurrentItem) { 
+            case Item.Bullet:
+                if (_storedCount < _storageLimit) {
                     _storedCount++;
                     player.CurrentItem = Item.None;
-                    break;
-                case Item.None:
+                }
+                break;
+            case Item.None:
+                if (_storedCount > 0) {
                     _storedCount--;
                     player.CurrentItem = Item.Bullet;
-                    break;
-                default: break;
-            }
+                }
+                break;
+            default: break;
         }
     }
 

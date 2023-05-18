@@ -22,6 +22,7 @@ public class PlayerController : MonoBehaviour
         Interact();
         Jump();
         Climb();
+        Shooting();
     }
 
     #region Inputs
@@ -64,6 +65,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _lerpSpeed;
     public bool _isFacingRight = true;
     private void Move() {
+        if (IsShooting) return;
         float moveSpeed = _isClimbing && !_isGrounded || _hasSomething ? _moveSpeed * 0.1f : _moveSpeed;
         
         if (Input.GetKey(KeyCode.A)) {
@@ -116,7 +118,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _fallMultiplier = 7;
     private bool _hasJumped;
     private void Jump() {
-        if (_isClimbing) return;
+        if (_isClimbing || IsShooting) return;
 
         float jumpForce = _hasSomething ? _jumpForce * 0.75f : _jumpForce;
         if (Input.GetKeyDown(KeyCode.Space) && (_isGrounded || Time.time < _timeLeftGrounded + _coyoteTime) && !_hasJumped) {
@@ -144,8 +146,28 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
 
+    #region Shooting
+    public bool IsShooting { get; set; }
+    private Cannon _currentCannon;
+    private float _startTime;
+    private void Shooting() {
+        if (IsShooting) {
+            if (_currentCannon.HasBullet) {
+                if (Input.GetKeyDown(KeyCode.Space)) {
+                    _startTime = Time.time;
+                } else if (Input.GetKeyUp(KeyCode.Space)) {
+                    float finalTime = Time.time - _startTime;
+                    _currentCannon.Fire(Mathf.Clamp(finalTime, 1, 4) * 100);
+                }
+            }
+            _currentCannon.Rotate((int)_verticalInput);
+        }
+    }
+    #endregion
+
     private void OnTriggerEnter2D(Collider2D collision) {
         _currentInteractable = collision.gameObject.GetComponent<IInteractable>();
+        _currentCannon = collision.gameObject.GetComponent<Cannon>();
          if(collision.CompareTag("Ladder")) {
             _isOnLadder = true;
         }
@@ -153,6 +175,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision) {
         _currentInteractable = null;
+        _currentCannon = null;
         if (collision.CompareTag("Ladder")) {
             _isOnLadder = false;
             _isClimbing = false;
