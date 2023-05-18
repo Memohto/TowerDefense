@@ -2,14 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Furnace : Generator
+public class Furnace : Generator, IInteractable
 {
-    [SerializeField] private float _ejectionForce;
+    [Header("Furnace Settings")]
+    [SerializeField] private int _storageLimit;
 
-    protected override void GenerateObject()
-    {
-        GameObject instance = Instantiate(_object, transform.position, Quaternion.identity);
-        Vector2 dir = new Vector2(Random.Range(-0.5f, 0.5f), Random.Range(0.5f, 1f));
-        instance.GetComponent<Rigidbody2D>().AddForce(dir * _ejectionForce * Time.deltaTime, ForceMode2D.Impulse);
+    public int _storedCount;
+
+    private void Start() {
+        Generate();
+    }
+
+    private void Update() {
+        if (!IsGenerating && _storedCount < _storageLimit) {
+            Generate();
+        }
+    }
+
+    protected override void GenerateObject() {
+        _storedCount++;
+    }
+
+    public void Interact(PlayerController player) {
+        if (_storedCount > 0 && player.CurrentItem == Item.None) {
+            player.CurrentItem = Item.Bullet;
+            _storedCount--;
+        }
     }
 }

@@ -4,12 +4,13 @@ using UnityEngine;
 
 public abstract class Generator : MonoBehaviour
 {
+    [Header("Generator Settings")]
     [SerializeField] protected GameObject _object;
     [SerializeField] protected float _timeToGenerate;
 
     public bool IsGenerating { get; private set; }
 
-    public void Generate() {
+    protected void Generate() {
         StartCoroutine(GenerateCoroutine());
     }
 
