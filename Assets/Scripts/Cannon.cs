@@ -15,7 +15,7 @@ public class Cannon : MonoBehaviour, IInteractable
     }
 
     public void Fire(float force) {
-        GameObject bulletInstance = Instantiate(_bulletPrefab, transform.position, Quaternion.identity);
+        GameObject bulletInstance = Instantiate(_bulletPrefab, transform.position + transform.right, Quaternion.identity);
         Rigidbody2D rb = bulletInstance.GetComponent<Rigidbody2D>();
         if (rb != null) rb.AddForce(transform.right * force * _fireMultiplier);
         HasBullet = false;

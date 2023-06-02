@@ -151,13 +151,14 @@ public class PlayerController : MonoBehaviour
     private Cannon _currentCannon;
     private float _startTime;
     private void Shooting() {
+        FollowCamera.Instance.ShowMap = IsShooting || Input.GetKey(KeyCode.LeftShift);
         if (IsShooting) {
             if (_currentCannon.HasBullet) {
                 if (Input.GetKeyDown(KeyCode.Space)) {
                     _startTime = Time.time;
                 } else if (Input.GetKeyUp(KeyCode.Space)) {
                     float finalTime = Time.time - _startTime;
-                    _currentCannon.Fire(Mathf.Clamp(finalTime, 1, 4) * 100);
+                    _currentCannon.Fire(Mathf.Clamp(finalTime, 1, 4) * 200);
                 }
             }
             _currentCannon.Rotate((int)_verticalInput);
