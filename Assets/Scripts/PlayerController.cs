@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     [Header("General")]
     [SerializeField] private Rigidbody2D _rigidBody;
     [SerializeField] private Collider2D _collider;
+    [SerializeField] private Animator _animator;
     [SerializeField] LayerMask _groundLayer;
     [Header("Item Prefabs")]
     [SerializeField] private GameObject _bulletPrefab;
@@ -71,18 +72,28 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey(KeyCode.A)) {
             if (_rigidBody.velocity.x > 0) _horizontalInput = 0;
             _horizontalInput = Mathf.MoveTowards(_horizontalInput, -1, _acceleration * Time.deltaTime);
-            _isFacingRight = false;
+            if (_horizontalInput < 0 && _isFacingRight) Flip();
         } else if (Input.GetKey(KeyCode.D)) {
             if (_rigidBody.velocity.x < 0) _horizontalInput = 0;
             _horizontalInput = Mathf.MoveTowards(_horizontalInput, 1, _acceleration * Time.deltaTime);
-            _isFacingRight = true;
+            if (_horizontalInput > 0 && !_isFacingRight) Flip();
         }
         else {
             _horizontalInput = Mathf.MoveTowards(_horizontalInput, 0, _acceleration * 10 * Time.deltaTime);
         }
-        
+
+        bool isRunning = Mathf.Abs(_horizontalInput) > 0.4;
+        _animator.SetBool("isRunning", isRunning);
+
         Vector3 targetVelocity = new Vector3(_horizontalInput * moveSpeed, _rigidBody.velocity.y);
         _rigidBody.velocity = Vector3.MoveTowards(_rigidBody.velocity, targetVelocity, _lerpSpeed * Time.deltaTime);
+    }
+
+    private void Flip() {
+        Vector3 newScale = transform.localScale;
+        newScale.x *= -1;
+        transform.localScale = newScale;
+        _isFacingRight = !_isFacingRight;
     }
     #endregion
 
